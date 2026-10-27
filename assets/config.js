@@ -2,9 +2,9 @@
 // FORM_ID / ENTRY_* come from the Google Form "pre-filled link":
 //   https://docs.google.com/forms/d/e/<FORM_ID>/viewform?usp=pp_url&entry.<NAME_ID>=test&entry.<BET_ID>=test
 window.WINNER = {
-  FORM_ID: '',
-  ENTRY_NAME: '',   // e.g. 'entry.123456789' (the "שם" question)
-  ENTRY_BET: '',    // e.g. 'entry.987654321' (the "הימור" question)
+  FORM_ID: '1FAIpQLSfuQkjurjAFE8TXHLmmRTbdYbMuNMzvet4GQX4tHNaBuIx_cw',
+  ENTRY_NAME: 'entry.864466412',    // the "שם" question
+  ENTRY_BET: 'entry.1250603811',    // the "הימור" question
 
   // Polls close (and bets lock) at this Israel-time wall clock.
   CLOSE: { y: 2026, m: 10, d: 27, h: 22 },
