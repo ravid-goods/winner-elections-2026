@@ -17,9 +17,16 @@
   let late = [];       // names whose bets arrived after the polls closed
   let invalid = [];    // rows that could not be read
   let tab = 'bets';
+  let lastCsv = null;
+  const cards = {};    // share images per tab (promises of PNG files), redrawn when the data changes
+  let rankTimer = null;
 
   // ---------- loading ----------
   function ingest(text) {
+    const stamp = entries.length + ' משתתפים · עודכן ' +
+      new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    if (text === lastCsv) { $('meta-text').textContent = stamp; return; }
+    lastCsv = text;
     const rows = W.parseCSV(text);
     const byName = new Map();
     late = []; invalid = [];
@@ -36,6 +43,25 @@
       new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
     $('load-err').textContent = '';
     render();
+    drawCards();
+  }
+
+  // ---------- share images ----------
+  function drawCards() {
+    if (!entries.length) return;
+    const avg = average();
+    cards.bets = window.Cards.all(entries).catch(() => null);
+    cards.avg = window.Cards.bet({
+      title1: 'ממוצע', title2: 'הקבוצה', sub: 'ממוצע של ' + entries.length + ' משתתפים', vals: avg, dec: true,
+      order: W.byValueDesc(avg), centerSub: 'ממוצע קבוצתי', file: 'winner-2026-average.png'
+    }).catch(() => null);
+    drawRankCard();
+  }
+  function drawRankCard() {
+    clearTimeout(rankTimer);
+    cards.rank = null;
+    if (!entries.length || !realReady()) return;
+    rankTimer = setTimeout(() => { cards.rank = window.Cards.rank(ranking(), st.real.slice()).catch(() => null); }, 300);
   }
   async function refresh() {
     if (!st.csvUrl) return;
@@ -159,9 +185,12 @@
     ['bets', 'avg', 'rank'].forEach((t) => { $('tab-' + t).hidden = t !== tab; });
     render();
   }));
-  document.querySelectorAll('[data-share]').forEach((b) => b.addEventListener('click', () => {
-    if (!entries.length) return;
-    W.shareWhatsApp(shareText(b.dataset.share));
+  document.querySelectorAll('[data-share]').forEach((b) => b.addEventListener('click', async () => {
+    const kind = b.dataset.share;
+    if (!entries.length || (kind === 'rank' && !realReady())) return;
+    if (kind === 'rank' && !cards.rank) cards.rank = window.Cards.rank(ranking(), st.real.slice()).catch(() => null);
+    const text = shareText(kind);
+    W.shareResult($('ss-' + kind), await W.shareImage(await cards[kind], text), text);
   }));
   $('real-inputs').addEventListener('input', (e) => {
     const inp = e.target.closest('input[data-i]');
@@ -170,6 +199,7 @@
     st.real[+inp.dataset.i] = Number.isFinite(v) && v > 0 ? Math.min(v, TOTAL) : 0;
     persist();
     renderRank();
+    drawRankCard();
   });
   $('setup-form').addEventListener('submit', (e) => {
     e.preventDefault();

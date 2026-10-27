@@ -97,14 +97,26 @@
   const CLOSE_MS = israelTime(C.CLOSE.y, C.CLOSE.m, C.CLOSE.d, C.CLOSE.h);
   // Same moment as a sortable wall-clock number (YYYYMMDDHHMMSS), for sheet timestamps.
   const CLOSE_WALL = C.CLOSE.y * 1e10 + C.CLOSE.m * 1e8 + C.CLOSE.d * 1e6 + C.CLOSE.h * 1e4;
-  const isClosed = () => Date.now() >= CLOSE_MS;
+
+  // The lock follows the web server's clock, not the device's (a phone set to the wrong time can't keep betting).
+  let skew = 0;
+  const now = () => Date.now() + skew;
+  async function syncClock() {
+    try {
+      const t0 = Date.now();
+      const res = await fetch(location.href.split('#')[0], { method: 'HEAD', cache: 'no-store' });
+      const server = Date.parse(res.headers.get('date'));
+      if (server) skew = server - (t0 + Date.now()) / 2;
+    } catch (e) { /* offline: keep the last known offset */ }
+  }
+  const isClosed = () => now() >= CLOSE_MS;
 
   // Drives every [data-countdown] block; calls onClose once when the polls close.
   function startCountdown(onClose) {
     const pad = (n) => (n < 10 ? '0' : '') + n;
     let fired = isClosed();
     function tick() {
-      const left = Math.max(0, CLOSE_MS - Date.now()), s = Math.floor(left / 1000);
+      const left = Math.max(0, CLOSE_MS - now()), s = Math.floor(left / 1000);
       document.querySelectorAll('[data-countdown]').forEach((c) => {
         c.querySelector('[data-h]').textContent = pad(Math.floor(s / 3600));
         c.querySelector('[data-m]').textContent = pad(Math.floor(s / 60) % 60);
@@ -165,15 +177,33 @@
   }
 
   // ---------- sharing ----------
+  const waLink = (text) => 'https://wa.me/?text=' + encodeURIComponent(text);
   function shareWhatsApp(text) {
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    window.open(waLink(text), '_blank');
   }
-  // Native share sheet when available, otherwise copy to clipboard.
-  async function shareOther(text) {
-    if (navigator.share) {
-      try { await navigator.share({ text }); return 'shared'; } catch (e) { return 'cancelled'; }
+  // Image + text through the phone's share sheet (WhatsApp is one tap away).
+  // Where files can't be shared (most desktops) the image is downloaded and 'download' is returned.
+  async function shareImage(file, text) {
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], text }); return 'shared'; }
+      catch (e) { if (e && e.name === 'AbortError') return 'cancelled'; }
     }
-    try { await navigator.clipboard.writeText(text); return 'copied'; } catch (e) { return 'failed'; }
+    if (file) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(file);
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
+    return 'download';
+  }
+  function shareResult(el, result, text) {
+    el.className = 'status ok';
+    if (result === 'download') {
+      el.innerHTML = 'התמונה נשמרה במכשיר. <a href="' + waLink(text) + '" target="_blank" rel="noopener">פתיחת ווצאפ עם הטקסט</a> וצירוף התמונה.';
+    } else el.textContent = '';
   }
 
   // ---------- storage (best effort) ----------
@@ -182,8 +212,8 @@
 
   window.W = {
     sum, fmt, esc, blocSums, blocText, donut, legendHTML, rowsHTML, byValueDesc,
-    CLOSE_MS, CLOSE_WALL, isClosed, startCountdown,
+    CLOSE_MS, CLOSE_WALL, now, syncClock, isClosed, startCountdown,
     validBet, encodeBet, decodeBet, parseCSV, parseSheetTime,
-    shareWhatsApp, shareOther, load, save
+    shareWhatsApp, shareImage, shareResult, load, save
   };
 })();

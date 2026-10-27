@@ -14,6 +14,7 @@
   };
   const persist = () => W.save(KEY, state);
   let sending = false;
+  let shareJob = null;   // the share image, drawn as soon as the sent screen shows
 
   function show(id) {
     ['s-name', 's-bet', 's-sent', 's-view'].forEach((s) => { $(s).hidden = s !== id; });
@@ -103,6 +104,8 @@
     renderBet();
     $('send').textContent = 'שולח...';
     try {
+      await W.syncClock();
+      if (W.isClosed()) return;   // checked against the server clock right before sending
       if (C.FORM_ID) {
         const body = new URLSearchParams();
         body.append(C.ENTRY_NAME, state.name);
@@ -134,13 +137,17 @@
     $('list-sent').innerHTML = W.rowsHTML(vals, W.byValueDesc(vals).filter((i) => vals[i] > 0), {});
     $('edit').hidden = closed;
     $('share-status').textContent = '';
+    shareJob = window.Cards.bet({
+      title1: 'המדגם', title2: 'של ' + state.name, sub: 'חלוקת 120 המנדטים שלי',
+      vals, order: W.byValueDesc(vals).filter((i) => vals[i] > 0), file: 'winner-2026-bet.png'
+    }).catch(() => null);
     show('s-sent');
   }
-  $('share-wa').addEventListener('click', () => W.shareWhatsApp(shareText(state.name, state.sent.bet)));
-  $('share-other').addEventListener('click', async () => {
-    const r = await W.shareOther(shareText(state.name, state.sent.bet));
-    $('share-status').textContent = r === 'copied' ? 'הטקסט הועתק, אפשר להדביק' : r === 'failed' ? 'לא הצלחתי לשתף' : '';
+  $('share-wa').addEventListener('click', async () => {
+    const text = shareText(state.name, state.sent.bet);
+    W.shareResult($('share-status'), await W.shareImage(await shareJob, text), text);
   });
+  $('share-text').addEventListener('click', () => W.shareWhatsApp(shareText(state.name, state.sent.bet)));
   $('edit').addEventListener('click', () => {
     state.bet = state.sent.bet.slice();
     persist();
@@ -186,4 +193,7 @@
   window.addEventListener('hashchange', start);
   W.startCountdown(onClose);
   start();
+  // Correct for a wrong device clock; the countdown picks the new offset up on its next tick.
+  W.syncClock();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) W.syncClock(); });
 })();
