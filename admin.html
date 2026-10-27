@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>חדר המנהל · Winner בחירות 2026</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b1433">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=Heebo:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<main class="app">
+  <div class="bar"><span class="live">● שידור חי</span><span class="admin-tag">🔒 מסך מנהל</span></div>
+  <div class="clock" data-countdown>
+    <div class="clock-l"><span data-label>הקלפיות נסגרות בעוד</span><small>22:00 שעון ישראל</small></div>
+    <div class="clock-d"><div><b class="k num" data-h>--</b><small>שעות</small></div><div><b class="k num" data-m>--</b><small>דק׳</small></div><div><b class="k num" data-s>--</b><small>שנ׳</small></div></div>
+  </div>
+  <h1 class="title k">חדר <span>המנהל</span></h1>
+
+  <!-- setup: where the bets live -->
+  <section id="setup" hidden>
+    <p class="sub">כדי לראות את ההימורים, הדביקו את קישור ה־CSV של גיליון התשובות. אפשר למצוא אותו בגיליון: קובץ ← שיתוף ← פרסום באינטרנט. הקישור נשמר רק בדפדפן הזה.</p>
+    <form id="setup-form">
+      <label class="field"><span>קישור CSV של הגיליון</span>
+        <input id="csv-url" dir="ltr" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv" required>
+      </label>
+      <button class="btn">שמירה וטעינה</button>
+    </form>
+  </section>
+
+  <section id="main" hidden>
+    <div class="meta">
+      <span id="meta-text">טוען...</span>
+      <span><button type="button" class="btn small ghost" id="refresh">רענון</button></span>
+    </div>
+    <div class="status err" id="load-err" role="status"></div>
+    <details class="note">
+      <summary>הקישור לא נטען? טעינת קובץ CSV ידנית</summary>
+      <p class="hint">בגיליון: קובץ ← הורדה ← CSV, ואז לבחור את הקובץ כאן.</p>
+      <input type="file" id="csv-file" accept=".csv,text/csv">
+      <p class="hint"><button type="button" class="linkbtn" id="change-url">החלפת קישור ה־CSV</button></p>
+    </details>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="bets" aria-selected="true">ההימורים</button>
+      <button class="tab" role="tab" data-tab="avg" aria-selected="false">ממוצע</button>
+      <button class="tab" role="tab" data-tab="rank" aria-selected="false">תוצאות ודירוג</button>
+    </div>
+
+    <!-- everyone's bets -->
+    <section id="tab-bets">
+      <div id="bets-list"></div>
+      <div id="excluded"></div>
+      <div class="actions"><button class="btn wa" data-share="bets">שיתוף כל ההימורים בווצאפ</button></div>
+    </section>
+
+    <!-- group average (admin only) -->
+    <section id="tab-avg" hidden>
+      <p class="sub">ממוצע של <b id="avg-n">0</b> משתתפים. גלוי רק למנהל, והמשתתפים יראו אותו רק אם תשתפו.</p>
+      <div class="pie-panel">
+        <div class="pie"><svg id="pie-avg" viewBox="0 0 132 141"></svg>
+          <div class="ctr"><b class="k num">120</b><small>ממוצע קבוצתי</small></div></div>
+        <div id="lg-avg"></div>
+      </div>
+      <div class="list" id="list-avg"></div>
+      <div class="actions"><button class="btn wa" data-share="avg">שיתוף הממוצע בווצאפ</button></div>
+    </section>
+
+    <!-- real results + ranking -->
+    <section id="tab-rank" hidden>
+      <h3 class="sec">תוצאות האמת</h3>
+      <div class="pie-panel">
+        <div class="pie"><svg id="pie-real" viewBox="0 0 132 141"></svg>
+          <div class="ctr"><b class="k num" id="real-total">0</b><small>מתוך 120</small></div></div>
+        <div id="lg-real"></div>
+      </div>
+      <div class="list" id="real-inputs"></div>
+      <div class="status" id="real-status" role="status"></div>
+      <h3 class="sec">מי צדק?</h3>
+      <p class="sub">הדירוג לפי <b>סטייה</b>: סכום ההפרשים בכל 15 המפלגות. סטייה נמוכה יותר פירושה הימור מדויק יותר.</p>
+      <div id="rank-list"></div>
+      <div class="actions"><button class="btn wa" data-share="rank" id="share-rank">שיתוף הדירוג בווצאפ</button></div>
+    </section>
+  </section>
+
+  <div class="ticker"><em>מנהל</em>המשתתפים לא רואים את המסך הזה</div>
+</main>
+<script src="assets/config.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Winner בחירות 2026</title>
+  <meta name="description" content="כמה מנדטים תקבל כל מפלגה? חלקו 120 מנדטים והמרו לפני סגירת הקלפיות ב־22:00.">
+  <meta property="og:title" content="Winner בחירות 2026">
+  <meta property="og:description" content="כמה מנדטים תקבל כל מפלגה? המרו לפני 22:00 ושתפו בקבוצה.">
+  <meta name="theme-color" content="#0b1433">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Karantina:wght@700&family=Heebo:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<main class="app">
+  <div class="bar"><span class="live">● שידור חי</span><span>Winner בחירות 2026</span></div>
+  <div class="clock" data-countdown>
+    <div class="clock-l"><span data-label>הקלפיות נסגרות בעוד</span><small>22:00 שעון ישראל · ההימורים ננעלים</small></div>
+    <div class="clock-d"><div><b class="k num" data-h>--</b><small>שעות</small></div><div><b class="k num" data-m>--</b><small>דק׳</small></div><div><b class="k num" data-s>--</b><small>שנ׳</small></div></div>
+  </div>
+
+  <!-- 1. name -->
+  <section id="s-name" hidden>
+    <h1 class="title k">מי <span>מהמר?</span></h1>
+    <p class="sub">כמה מנדטים תקבל כל מפלגה? מחלקים 120 מנדטים בין 15 המפלגות, שולחים, ומשתפים בקבוצה.</p>
+    <form id="name-form">
+      <label class="field"><span>השם שלך (כפי שיופיע בדירוג)</span>
+        <input id="name" maxlength="30" autocomplete="nickname" placeholder="למשל: דנה כ." required>
+      </label>
+      <button class="btn" id="go">בואו נהמר</button>
+    </form>
+    <div class="note warn" id="closed-name" hidden>הקלפיות נסגרו וההימורים נעולים. נתראה בתוצאות!</div>
+  </section>
+
+  <!-- 2. bet -->
+  <section id="s-bet" hidden>
+    <h1 class="title k">המדגם <span id="bet-name"></span></h1>
+    <p class="sub">חלקו 120 מנדטים · <button type="button" class="linkbtn" id="change-name">שינוי שם</button></p>
+    <div class="pie-panel sticky">
+      <div class="pie"><svg id="pie-bet" viewBox="0 0 132 141" aria-label="חלוקת המנדטים לפי גושים"></svg>
+        <div class="ctr"><b class="k num" id="bet-total">0</b><small>מתוך 120</small></div></div>
+      <div id="lg-bet"></div>
+    </div>
+    <div class="list" id="list"></div>
+    <p class="hint">לכל מפלגה: 0 מנדטים, או 4 ומעלה.</p>
+    <div class="status" id="status" role="status"></div>
+    <div class="actions">
+      <button class="btn" id="send" disabled>שליחת ההימור</button>
+      <button class="btn ghost" id="reset">איפוס</button>
+    </div>
+  </section>
+
+  <!-- 3. sent -->
+  <section id="s-sent" hidden>
+    <h1 class="title k">ההימור <span>נקלט!</span></h1>
+    <p class="sub" id="sent-sub"></p>
+    <div class="note warn" id="test-mode" hidden>מצב בדיקה: הטופס עוד לא מחובר, ההימור לא נשמר.</div>
+    <div class="pie-panel">
+      <div class="pie"><svg id="pie-sent" viewBox="0 0 132 141"></svg>
+        <div class="ctr"><b class="k num">120</b><small>מנדטים</small></div></div>
+      <div id="lg-sent"></div>
+    </div>
+    <div class="list" id="list-sent"></div>
+    <div class="actions">
+      <button class="btn wa" id="share-wa">שיתוף בווצאפ</button>
+      <button class="btn ghost" id="share-other">שיתוף בדרך אחרת</button>
+      <div class="status ok" id="share-status" role="status"></div>
+      <button class="btn ghost" id="edit">עריכת ההימור</button>
+    </div>
+  </section>
+
+  <!-- 4. a bet someone shared -->
+  <section id="s-view" hidden>
+    <h1 class="title k">המדגם <span id="view-name"></span></h1>
+    <p class="sub">ההימור ששותף איתך</p>
+    <div class="pie-panel">
+      <div class="pie"><svg id="pie-view" viewBox="0 0 132 141"></svg>
+        <div class="ctr"><b class="k num">120</b><small>מנדטים</small></div></div>
+      <div id="lg-view"></div>
+    </div>
+    <div class="list" id="list-view"></div>
+    <div class="actions"><button class="btn" id="mine">גם אני רוצה להמר</button></div>
+  </section>
+
+  <div class="ticker" id="ticker"><em>מבזק</em>ההימורים ננעלים ב־22:00 · שתפו את ההימור בקבוצה</div>
+</main>
+<script src="assets/config.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
